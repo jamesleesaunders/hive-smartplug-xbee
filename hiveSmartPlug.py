@@ -17,10 +17,10 @@ ZDP_PROFILE_ID = '\x00\x00' # Zigbee Device Profile
 ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
 
 # Serial Configuration
-XBEEPORT = '/dev/tty.usbserial-A1014P7W'
-# XBEEPORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
-XBEEBAUD_RATE = 9600
-serialPort = serial.Serial(XBEEPORT, XBEEBAUD_RATE)
+XBEE_PORT = '/dev/tty.usbserial-A1014P7W'
+# XBEE_PORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
+XBEE_BAUD = 9600
+serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD)
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -136,8 +136,10 @@ def receiveMessage(data):
                 print "\tRSSI Value:",
                 print ord(data['rf_data'][3])
             elif (clusterCmd == '\xfe'):
-                print "\tVersion Information:",
-                print ord(data['rf_data'][3]) + (ord(data['rf_data'][4]) * 256)
+                print "\tVersion Information"
+                print "\t\tManufacturer:", str(data['rf_data'][22:len(data['rf_data'])]).replace('\t', ' ').replace('\n', ' ')
+                print "\t\tSoftware:", ord(data['rf_data'][3]) + (ord(data['rf_data'][4]) * 256)
+
             else:
                 print "\tUnimplemented Cluster Command", hex(ord(clusterCmd))
 

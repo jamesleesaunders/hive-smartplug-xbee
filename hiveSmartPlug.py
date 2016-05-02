@@ -18,7 +18,7 @@ ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
 
 # Serial Configuration
 XBEEPORT = '/dev/tty.usbserial-A1014P7W'
-# XBEEPORT = '/dev/ttyUSB0'
+# XBEEPORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
 XBEEBAUD_RATE = 9600
 serialPort = serial.Serial(XBEEPORT, XBEEBAUD_RATE)
 

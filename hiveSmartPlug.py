@@ -46,7 +46,7 @@ def receiveMessage(data):
     clusterId = data['cluster']
 
     if (profileId == ZDP_PROFILE_ID):
-        print "Zigbee Device Profile ID"
+        # print "Zigbee Device Profile ID"
 
         if (clusterId == '\x13'):
             # Device Announce Message.

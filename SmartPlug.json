@@ -1,0 +1,204 @@
+{
+    "meta": {},
+    "links": {},
+    "linked": {},
+    "nodes": [
+        {
+            "id": "a8600168-f81a-4f79-be07-08db414507c4",
+            "href": "https://api.prod.bgchprod.info:8443/omnia/nodes/a8600168-f81a-4f79-be07-08db414507c4",
+            "links": {},
+            "name": "SmartPlug",
+            "nodeType": "http://alertme.com/schema/json/node.class.smartplug.json#",
+            "parentNodeId": "c9c78b80-574c-4ceb-b149-df02e18d2056",
+            "lastSeen": 1462187702627,
+            "createdOn": 1462187283712,
+            "attributes": {
+                "zigBeeNeighbourTable": {
+                    "reportedValue": [
+                        {
+                            "neighbourAddress": "::21c:2bff:fe09:9012",
+                            "deviceType": "COORDINATOR",
+                            "relationship": "NONE",
+                            "LQI": 100
+                        },
+                        {
+                            "neighbourAddress": "::21e:5e09:20d:8ed",
+                            "deviceType": "DEVICE",
+                            "relationship": "NONE",
+                            "LQI": 100
+                        }
+                    ],
+                    "reportReceivedTime": 1462187571714
+                },
+                "lastSeen": {
+                    "reportedValue": "2016-05-02T11:10:32.360+0000",
+                    "reportReceivedTime": 1462187451442
+                },
+                "model": {
+                    "reportedValue": "SmartPlug",
+                    "reportReceivedTime": 1462187451442
+                },
+                "protocol": {
+                    "reportedValue": "ZIGBEE",
+                    "reportReceivedTime": 1462187451442
+                },
+                "datecode": {
+                    "reportReceivedTime": 1462187332111
+                },
+                "RSSI": {
+                    "reportedValue": -57,
+                    "reportReceivedTime": 1462187702627
+                },
+                "macAddress": {
+                    "reportedValue": "000D6F0003BBB9F8",
+                    "reportReceivedTime": 1462187451442
+                },
+                "LQI": {
+                    "reportedValue": 100,
+                    "reportReceivedTime": 1462187702627
+                },
+                "presence": {
+                    "reportedValue": "PRESENT",
+                    "reportReceivedTime": 1462187702627
+                },
+                "hwVersion": {
+                    "reportedValue": -2147483648,
+                    "reportReceivedTime": 1462187332111
+                },
+                "manufacturer": {
+                    "reportedValue": "AlertMe.com",
+                    "reportReceivedTime": 1462187451442
+                },
+                "zigBeeRoutingTable": {
+                    "reportedValue": [
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "ACTIVE",
+                            "memoryConstrained": true,
+                            "manyToOne": true,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        },
+                        {
+                            "destinationAddress": "::21c:2bff:fe09:9012",
+                            "status": "INACTIVE",
+                            "memoryConstrained": false,
+                            "manyToOne": false,
+                            "routeRecordRequired": false,
+                            "nextHopAddress": "::21c:2bff:fe09:9012"
+                        }
+                    ],
+                    "reportReceivedTime": 1462187572732
+                },
+                "powerSupply": {
+                    "reportedValue": "AC",
+                    "reportReceivedTime": 1462187451442
+                },
+                "softwareVersion": {
+                    "reportedValue": "29000000",
+                    "reportReceivedTime": 1462187451442
+                },
+                "batteryState": {
+                    "reportedValue": "FULL",
+                    "reportReceivedTime": 1462187332457
+                },
+                "nodeType": {
+                    "reportedValue": "http://alertme.com/schema/json/node.class.smartplug.json#",
+                    "reportReceivedTime": 1462187702627
+                },
+                "swVersion": {
+                    "reportedValue": 29000000,
+                    "reportReceivedTime": 1462187332111
+                }
+            }
+        }
+    ]
+}

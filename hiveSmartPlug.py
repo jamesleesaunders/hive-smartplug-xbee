@@ -186,7 +186,7 @@ def receiveMessage(data):
     else:
         print "Minor Error: Unrecognised Profile ID"
 
-# Create XBee library API object, which spawns a new thread
+# Create Zigbee library API object, which spawns a new thread
 zb = ZigBee(serialPort, callback = receiveMessage)
 
 print "Select Command:"
@@ -288,10 +288,11 @@ while True:
         print e.message.split("'")[1]
 
     except:
-        print "Unexpected Error:", sys.exc_info()[0]
+        print "Unexpected Error:", sys.exc_info()[0], sys.exc_info()[1]
         break
 
 # Close up shop
 print "Closing Serial Port"
 zb.halt()
 serialPort.close()
+

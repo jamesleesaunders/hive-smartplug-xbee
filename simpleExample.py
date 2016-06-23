@@ -35,15 +35,15 @@ def sendMessage(dest_addr_long, dest_addr, src_endpoint, dest_endpoint, cluster,
     )
 
 def receiveMessage(data):
-	pp = pprint.PrettyPrinter(indent=4)
-	pp.pprint(data)
-
-	global switchLongAddr
-	global switchShortAddr
-	switchLongAddr = data['source_addr_long']
-	switchShortAddr = data['source_addr']
-	profileId = data['profile']
-	clusterId = data['cluster']
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(data)
+    
+    global switchLongAddr
+    global switchShortAddr
+    switchLongAddr = data['source_addr_long']
+    switchShortAddr = data['source_addr']
+    profileId = data['profile']
+    clusterId = data['cluster']
 
     if (profileId == ZDP_PROFILE_ID):
         if (clusterId == '\x00\x06'):

@@ -66,13 +66,12 @@ def receiveMessage(data):
     elif (profileId == ALERTME_PROFILE_ID):
         if (clusterId == '\x00\xee'):
             clusterCmd = data['rf_data'][2]
-            print "Switch Status"
             if (clusterCmd == '\x80'):
                 if (ord(data['rf_data'][3]) & 0x01):
                     state = "ON"
                 else:
                     state = "OFF"
-                print "\tSwitch is:", state
+                print "Switch State:", state
 
 # Create ZigBee library API object, which spawns a new thread
 zb = ZigBee(serialPort, callback = receiveMessage)

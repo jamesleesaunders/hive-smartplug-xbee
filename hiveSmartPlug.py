@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 from xbee import ZigBee
-from struct import *
+from struct import unpack
 import serial
 import time
 import sys

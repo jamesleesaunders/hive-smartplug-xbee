@@ -24,8 +24,8 @@ XBEE_BAUD = 9600
 serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD, timeout=1)
 
 def sendMessage(dest_addr_long, dest_addr, src_endpoint, dest_endpoint, cluster, profile, data):
-    zb.send('tx_explicit',
-        dest_addr_long=dest_addr_long,
+	zb.send('tx_explicit',
+		dest_addr_long=dest_addr_long,
         dest_addr=dest_addr,
         src_endpoint=src_endpoint,
         dest_endpoint=dest_endpoint,
@@ -35,72 +35,40 @@ def sendMessage(dest_addr_long, dest_addr, src_endpoint, dest_endpoint, cluster,
     )
 
 def receiveMessage(data):
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(data)
+	pp = pprint.PrettyPrinter(indent=4)
+	pp.pprint(data)
 
-    global switchLongAddr
-    global switchShortAddr
-    switchLongAddr = data['source_addr_long']
-    switchShortAddr = data['source_addr']
+	global switchLongAddr
+	global switchShortAddr
+	switchLongAddr = data['source_addr_long']
+	switchShortAddr = data['source_addr']
+	profileId = data['profile']
+	clusterId = data['cluster']
 
-    profileId = data['profile']
-    clusterId = data['cluster']
-
-    if (profileId == ZDP_PROFILE_ID):
-        if (clusterId == '\x13'):
-            # Device Announce Message.
-            # Due to timing problems with the switch itself, I don't
-            # respond to this message, I save the response for later after the
-            # Match Descriptor request comes in.  You'll see it down below.
-            print "Device Announce Message"
-
-        elif (clusterId == '\x80\x05'):
-            # Active Endpoint Response.
-            # This message tells you what the device can do, but it isn't
-            # constructed correctly to match what the switch can do according
-            # to the spec. This is another message that gets it's response
-            # after I receive the Match Descriptor below.
-            print "Active Endpoint Response"
-
-        elif (clusterId == '\x802'):
-            # Route Record Response
-            print "Broadcasting Route Record Response"
-
-        elif (clusterId == '\x00\x06'):
-            # Match Descriptor Request.
-            # This is the point where I finally respond to the switch.
-            # Several messages are sent to cause the switch to join with
-            # the controller at a network level and to cause it to regard
-            # this controller as valid.
-
-            # First the Active Endpoint Request
+	if (profileId == ZDP_PROFILE_ID):
+		if (clusterId == '\x00\x06'):
+			# Active Endpoint Request
             data = '\x00\x00'
             sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x00\x05', ZDP_PROFILE_ID, data)
-            print "Sent Active Endpoint Request"
 
             # Now the Match Descriptor Response
             data = '\x00\x00\x00\x00\x01\x02'
             sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x80\x06', ZDP_PROFILE_ID, data)
-            print "Sent Match Descriptor"
 
         elif (clusterId == '\x00\x06'):
-            # Now there are two messages directed at the hardware
-            # code (rather than the network code).
+            # Now there are two messages directed at the hardware code
             data = '\x11\x01\xfc'
             sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf6', ALERTME_PROFILE_ID, data)
 
-            # The switch has to receive both of these to stay joined.
+            # The switch has to receive both of these to stay joined
             data = '\x19\x01\xfa\x00\x01'
             sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf0', ALERTME_PROFILE_ID, data)
-            print "Sent Hardware Join Messages"
 
-    elif (profileId == ALERTME_PROFILE_ID):
+	elif (profileId == ALERTME_PROFILE_ID):
         if (clusterId == '\x00\xee'):
             clusterCmd = data['rf_data'][2]
             print "Switch Status"
             if (clusterCmd == '\x80'):
-                # '\th\x80\x07\x01'
-                # '\th\x80\x06\x00'
                 if (ord(data['rf_data'][3]) & 0x01):
                     state = "ON"
                 else:
@@ -112,11 +80,11 @@ zb = ZigBee(serialPort, callback = receiveMessage)
 
 state = 1
 while True:
-    try:
-	time.sleep(2.000)
+	try:
+	time.sleep(1.00)
 
 	if(switchLongAddr != ''):
-		# If last loop switced on then switch off
+		# Toggle On and Off
 		if(state == 1):
 			databytes = '\x00\x01'
 			state = 0
@@ -129,7 +97,7 @@ while True:
 
 	else:
 		data = '\x12' + '\x01'
-            	sendMessage(broadcastLongAddr, broadcastShortAddr, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
+		sendMessage(broadcastLongAddr, broadcastShortAddr, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
 
     except KeyboardInterrupt:
         print "Keyboard Interrupt"

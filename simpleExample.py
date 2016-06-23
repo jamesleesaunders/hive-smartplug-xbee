@@ -45,9 +45,9 @@ def receiveMessage(data):
 	profileId = data['profile']
 	clusterId = data['cluster']
 
-	if (profileId == ZDP_PROFILE_ID):
-		if (clusterId == '\x00\x06'):
-			# Active Endpoint Request
+    if (profileId == ZDP_PROFILE_ID):
+        if (clusterId == '\x00\x06'):
+            # Active Endpoint Request
             data = '\x00\x00'
             sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x00\x05', ZDP_PROFILE_ID, data)
 
@@ -64,7 +64,7 @@ def receiveMessage(data):
             data = '\x19\x01\xfa\x00\x01'
             sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf0', ALERTME_PROFILE_ID, data)
 
-	elif (profileId == ALERTME_PROFILE_ID):
+    elif (profileId == ALERTME_PROFILE_ID):
         if (clusterId == '\x00\xee'):
             clusterCmd = data['rf_data'][2]
             print "Switch Status"
@@ -80,24 +80,24 @@ zb = ZigBee(serialPort, callback = receiveMessage)
 
 state = 1
 while True:
-	try:
-	time.sleep(1.00)
+    try:
+        time.sleep(1.00)
 
-	if(switchLongAddr != ''):
-		# Toggle On and Off
-		if(state == 1):
-			databytes = '\x00\x01'
-			state = 0
-		else:
-			databytes = '\x01\x01'
-			state = 1
+        if(switchLongAddr != ''):
+            # Toggle On and Off
+            if(state == 1):
+                databytes = '\x00\x01'
+                state = 0
+            else:
+                databytes = '\x01\x01'
+                state = 1
         
-		data = '\x11\x00' + '\x02' + databytes
-		sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xee', ALERTME_PROFILE_ID, data)
+            data = '\x11\x00' + '\x02' + databytes
+            sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xee', ALERTME_PROFILE_ID, data)
 
-	else:
-		data = '\x12' + '\x01'
-		sendMessage(broadcastLongAddr, broadcastShortAddr, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
+        else:
+            data = '\x12' + '\x01'
+            sendMessage(broadcastLongAddr, broadcastShortAddr, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
 
     except KeyboardInterrupt:
         print "Keyboard Interrupt"

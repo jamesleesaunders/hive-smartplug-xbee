@@ -7,13 +7,13 @@ import time
 import sys
 import pprint
 
-# Zigbee Addressing
+# ZigBee Addressing
 BROADCAST = '\x00\x00\x00\x00\x00\x00\xff\xff'
 BROADCAST_SHORT = '\xff\xfe'
 switchLongAddr = '\x00'
 switchShortAddr = '\x00'
 
-# Zigbee Profile IDs
+# ZigBee Profile IDs
 ZDP_PROFILE_ID = '\x00\x00' # Zigbee Device Profile
 ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
 
@@ -46,7 +46,7 @@ def receiveMessage(data):
     clusterId = data['cluster']
 
     if (profileId == ZDP_PROFILE_ID):
-        # print "Zigbee Device Profile ID"
+        # Zigbee Device Profile ID
 
         if (clusterId == '\x13'):
             # Device Announce Message.
@@ -69,7 +69,7 @@ def receiveMessage(data):
 
         elif (clusterId == '\x00\x06'):
             # Match Descriptor Request.
-            # This is the point where I finally respond to the switch.
+            # This is the point where we finally respond to the switch.
             # Several messages are sent to cause the switch to join with
             # the controller at a network level and to cause it to regard
             # this controller as valid.
@@ -99,10 +99,9 @@ def receiveMessage(data):
             print "Minor Error: Unrecognised Cluster ID"
 
     elif (profileId == ALERTME_PROFILE_ID):
-        # print "AlertMe Profile ID"
+        # AlertMe Profile ID
 
         clusterCmd = data['rf_data'][2]
-
         if (clusterId == '\x00\xef'):
             if (clusterCmd == '\x81'):
                 print "Current Power"
@@ -186,8 +185,12 @@ def receiveMessage(data):
     else:
         print "Minor Error: Unrecognised Profile ID"
 
-# Create Zigbee library API object, which spawns a new thread
+# Create ZigBee library API object, which spawns a new thread
 zb = ZigBee(serialPort, callback = receiveMessage)
+
+# Send out initial broadcast to provoke a response (so we can then work out the switch short and long addresses)
+data = '\x12' + '\x01'
+sendMessage(BROADCAST, BROADCAST_SHORT, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
 
 print "Select Command:"
 print "\t0 Switch Off"

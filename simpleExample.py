@@ -7,14 +7,14 @@ import time
 import sys
 import pprint
 
-# Zigbee Addressing
+# ZigBee Addressing
 broadcastLongAddr = '\x00\x00\x00\x00\x00\x00\xff\xff'
 broadcastShortAddr = '\xff\xfe'
 switchLongAddr = ''
 switchShortAddr = ''
 
-# Zigbee Profile IDs
-ZDP_PROFILE_ID = '\x00\x00' # Zigbee Device Profile
+# ZigBee Profile IDs
+ZDP_PROFILE_ID = '\x00\x00' # ZigBee Device Profile
 ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
 
 # Serial Configuration
@@ -24,8 +24,8 @@ XBEE_BAUD = 9600
 serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD, timeout=1)
 
 def sendMessage(dest_addr_long, dest_addr, src_endpoint, dest_endpoint, cluster, profile, data):
-	zb.send('tx_explicit',
-		dest_addr_long=dest_addr_long,
+    zb.send('tx_explicit',
+        dest_addr_long=dest_addr_long,
         dest_addr=dest_addr,
         src_endpoint=src_endpoint,
         dest_endpoint=dest_endpoint,
@@ -75,7 +75,7 @@ def receiveMessage(data):
                     state = "OFF"
                 print "\tSwitch is:", state
 
-# Create XBee library API object, which spawns a new thread
+# Create ZigBee library API object, which spawns a new thread
 zb = ZigBee(serialPort, callback = receiveMessage)
 
 state = 1

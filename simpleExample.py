@@ -1,5 +1,12 @@
 #! /usr/bin/python
 
+# Filename:    simpleExample.pl
+# Description: Switch a Hive SmartPlug On/Off using a XBee
+# Author:      James Saunders [james@saunders-family.net]
+# Copyright:   Copyright (C) 2016 James Saunders
+# License:     MIT
+# Version:     1.0.0"
+
 from xbee import XBee, ZigBee
 import serial
 import time
@@ -17,8 +24,7 @@ ZDP_PROFILE_ID = '\x00\x00' # ZigBee Device Profile
 ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
 
 # Serial Configuration
-XBEE_PORT = '/dev/tty.usbserial-A1014P7W' # MacBook Serial Port
-# XBEE_PORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
+XBEE_PORT = '/dev/ttyUSB0'
 XBEE_BAUD = 9600
 serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD, timeout=1)
 

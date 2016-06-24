@@ -1,5 +1,12 @@
 #! /usr/bin/python
 
+# Filename:    hiveSmartPlugXbee.pl
+# Description: Communicate with a Hive SmartPlug via a XBee
+# Author:      James Saunders [james@saunders-family.net]
+# Copyright:   Copyright (C) 2016 James Saunders
+# License:     MIT
+# Version:     1.0.1"
+
 from xbee import ZigBee
 from struct import unpack
 import serial
@@ -10,16 +17,15 @@ import pprint
 # ZigBee Addressing
 BROADCAST = '\x00\x00\x00\x00\x00\x00\xff\xff'
 BROADCAST_SHORT = '\xff\xfe'
-switchLongAddr = '\x00'
-switchShortAddr = '\x00'
+switchLongAddr = ''
+switchShortAddr = ''
 
 # ZigBee Profile IDs
 ZDP_PROFILE_ID = '\x00\x00' # Zigbee Device Profile
 ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
 
 # Serial Configuration
-XBEE_PORT = '/dev/tty.usbserial-A1014P7W' # MacBook Serial Port
-# XBEE_PORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
+XBEE_PORT = '/dev/ttyUSB0'
 XBEE_BAUD = 9600
 serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD)
 

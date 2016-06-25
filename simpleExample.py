@@ -5,7 +5,7 @@
 # Author:      James Saunders [james@saunders-family.net]
 # Copyright:   Copyright (C) 2016 James Saunders
 # License:     MIT
-# Version:     1.0.2"
+# Version:     1.0.3"
 
 from xbee import XBee, ZigBee
 import serial

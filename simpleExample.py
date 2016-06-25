@@ -14,9 +14,10 @@ import sys
 import pprint
 
 # Serial Configuration
-XBEE_PORT = '/dev/ttyUSB0'
+XBEE_PORT = '/dev/tty.usbserial-A1014P7W' # MacBook Serial Port
+# XBEE_PORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
 XBEE_BAUD = 9600
-serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD, timeout=1)
+serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD)
 
 # ZigBee Profile IDs
 ZDP_PROFILE_ID = '\x00\x00' # ZigBee Device Profile
@@ -66,15 +67,15 @@ def receiveMessage(data):
                     state = "OFF"
                 print "Switch State:", state
 
-def sendMessage(dest_addr_long, dest_addr, src_endpoint, dest_endpoint, cluster, profile, data):
+def sendMessage(destLongAddr, destShortAddr, srcEndpoint, destEndpoint, clusterId, profileId, data):
     zb.send('tx_explicit',
-        dest_addr_long=dest_addr_long,
-        dest_addr=dest_addr,
-        src_endpoint=src_endpoint,
-        dest_endpoint=dest_endpoint,
-        cluster=cluster,
-        profile=profile,
-        data=data
+        dest_addr_long = destLongAddr,
+        dest_addr = destShortAddr,
+        src_endpoint = srcEndpoint,
+        dest_endpoint = destEndpoint,
+        cluster = clusterId,
+        profile = profileId,
+        data = data
     )
 
 # Create ZigBee library API object, which spawns a new thread
@@ -88,11 +89,12 @@ while True:
         if(switchLongAddr != ''):
             # Toggle On and Off
             switchState = not switchState
- 
             data = '\x11\x00\x02\x00\x01' if switchState else '\x11\x00\x02\x01\x01' 
             sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xee', ALERTME_PROFILE_ID, data)
 
         else:
+            # Send out initial broadcast to provoke a response,
+            # So we can then ascertain the switch address
             data = '\x12' + '\x01'
             sendMessage(broadcastLongAddr, broadcastShortAddr, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
 

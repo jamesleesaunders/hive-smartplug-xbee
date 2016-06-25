@@ -5,7 +5,7 @@
 # Author:      James Saunders [james@saunders-family.net]
 # Copyright:   Copyright (C) 2016 James Saunders
 # License:     MIT
-# Version:     1.0.1"
+# Version:     1.0.2"
 
 from xbee import ZigBee
 from struct import unpack
@@ -14,40 +14,27 @@ import time
 import sys
 import pprint
 
+# Serial Configuration
+XBEE_PORT = '/dev/ttyUSB0'
+XBEE_BAUD = 9600
+serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD)
+
+# ZigBee Profile IDs
+ZDP_PROFILE_ID = '\x00\x00' # Zigbee Device Profile
+ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
+
 # ZigBee Addressing
 BROADCAST = '\x00\x00\x00\x00\x00\x00\xff\xff'
 BROADCAST_SHORT = '\xff\xfe'
 switchLongAddr = ''
 switchShortAddr = ''
 
-# ZigBee Profile IDs
-ZDP_PROFILE_ID = '\x00\x00' # Zigbee Device Profile
-ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
-
-# Serial Configuration
-XBEE_PORT = '/dev/ttyUSB0'
-XBEE_BAUD = 9600
-serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD)
-
-def sendMessage(dest_addr_long, dest_addr, src_endpoint, dest_endpoint, cluster, profile, data):
-    zb.send('tx_explicit',
-        dest_addr_long=dest_addr_long,
-        dest_addr=dest_addr,
-        src_endpoint=src_endpoint,
-        dest_endpoint=dest_endpoint,
-        cluster=cluster,
-        profile=profile,
-        data=data
-    )
-
 def receiveMessage(data):
     # pp = pprint.PrettyPrinter(indent=4)
     # pp.pprint(data)
 
-    global switchLongAddr
-    global switchShortAddr
-    switchLongAddr = data['source_addr_long']
-    switchShortAddr = data['source_addr']
+    global switchLongAddr; switchLongAddr = data['source_addr_long']
+    global switchShortAddr; switchShortAddr = data['source_addr']
     profileId = data['profile']
     clusterId = data['cluster']
 
@@ -191,10 +178,21 @@ def receiveMessage(data):
     else:
         print "Minor Error: Unrecognised Profile ID"
 
+def sendMessage(dest_addr_long, dest_addr, src_endpoint, dest_endpoint, cluster, profile, data):
+    zb.send('tx_explicit',
+        dest_addr_long=dest_addr_long,
+        dest_addr=dest_addr,
+        src_endpoint=src_endpoint,
+        dest_endpoint=dest_endpoint,
+        cluster=cluster,
+        profile=profile,
+        data=data
+    )
+
 # Create ZigBee library API object, which spawns a new thread
 zb = ZigBee(serialPort, callback = receiveMessage)
 
-# Send out initial broadcast to provoke a response (so we can then work out the switch short and long addresses)
+# Send out initial broadcast to provoke a response (so we can then ascertain the switch address)
 data = '\x12' + '\x01'
 sendMessage(BROADCAST, BROADCAST_SHORT, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
 

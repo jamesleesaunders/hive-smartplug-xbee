@@ -5,7 +5,7 @@
 # Author:      James Saunders [james@saunders-family.net]
 # Copyright:   Copyright (C) 2016 James Saunders
 # License:     MIT
-# Version:     1.0.0"
+# Version:     1.0.2"
 
 from xbee import XBee, ZigBee
 import serial
@@ -13,40 +13,27 @@ import time
 import sys
 import pprint
 
+# Serial Configuration
+XBEE_PORT = '/dev/ttyUSB0'
+XBEE_BAUD = 9600
+serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD, timeout=1)
+
+# ZigBee Profile IDs
+ZDP_PROFILE_ID = '\x00\x00' # ZigBee Device Profile
+ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
+
 # ZigBee Addressing
 broadcastLongAddr = '\x00\x00\x00\x00\x00\x00\xff\xff'
 broadcastShortAddr = '\xff\xfe'
 switchLongAddr = ''
 switchShortAddr = ''
 
-# ZigBee Profile IDs
-ZDP_PROFILE_ID = '\x00\x00' # ZigBee Device Profile
-ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
-
-# Serial Configuration
-XBEE_PORT = '/dev/ttyUSB0'
-XBEE_BAUD = 9600
-serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD, timeout=1)
-
-def sendMessage(dest_addr_long, dest_addr, src_endpoint, dest_endpoint, cluster, profile, data):
-    zb.send('tx_explicit',
-        dest_addr_long=dest_addr_long,
-        dest_addr=dest_addr,
-        src_endpoint=src_endpoint,
-        dest_endpoint=dest_endpoint,
-        cluster=cluster,
-        profile=profile,
-        data=data
-    )
-
 def receiveMessage(data):
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(data)
     
-    global switchLongAddr
-    global switchShortAddr
-    switchLongAddr = data['source_addr_long']
-    switchShortAddr = data['source_addr']
+    global switchLongAddr; switchLongAddr = data['source_addr_long']
+    global switchShortAddr; switchShortAddr = data['source_addr']
     profileId = data['profile']
     clusterId = data['cluster']
 
@@ -79,24 +66,30 @@ def receiveMessage(data):
                     state = "OFF"
                 print "Switch State:", state
 
+def sendMessage(dest_addr_long, dest_addr, src_endpoint, dest_endpoint, cluster, profile, data):
+    zb.send('tx_explicit',
+        dest_addr_long=dest_addr_long,
+        dest_addr=dest_addr,
+        src_endpoint=src_endpoint,
+        dest_endpoint=dest_endpoint,
+        cluster=cluster,
+        profile=profile,
+        data=data
+    )
+
 # Create ZigBee library API object, which spawns a new thread
 zb = ZigBee(serialPort, callback = receiveMessage)
 
-state = 1
+switchState = True
 while True:
     try:
         time.sleep(1.00)
 
         if(switchLongAddr != ''):
             # Toggle On and Off
-            if(state == 1):
-                databytes = '\x00\x01'
-                state = 0
-            else:
-                databytes = '\x01\x01'
-                state = 1
-        
-            data = '\x11\x00' + '\x02' + databytes
+            switchState = not switchState
+ 
+            data = '\x11\x00\x02\x00\x01' if switchState else '\x11\x00\x02\x01\x01' 
             sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xee', ALERTME_PROFILE_ID, data)
 
         else:

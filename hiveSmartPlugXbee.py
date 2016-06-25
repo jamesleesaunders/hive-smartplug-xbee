@@ -15,8 +15,7 @@ import sys
 import pprint
 
 # Serial Configuration
-XBEE_PORT = '/dev/tty.usbserial-A1014P7W' # MacBook Serial Port
-# XBEE_PORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
+XBEE_PORT = '/dev/ttyUSB0'
 XBEE_BAUD = 9600
 serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD)
 
@@ -179,15 +178,15 @@ def receiveMessage(data):
     else:
         print "Minor Error: Unrecognised Profile ID"
 
-def sendMessage(destLongAddr, destShortAddr, srcEndpoint, destEndpoint, clusterId, profileId, data):
+def sendMessage(dest_addr_long, dest_addr, src_endpoint, dest_endpoint, cluster, profile, data):
     zb.send('tx_explicit',
-        dest_addr_long = destLongAddr,
-        dest_addr = destShortAddr,
-        src_endpoint = srcEndpoint,
-        dest_endpoint = destEndpoint,
-        cluster = clusterId,
-        profile = profileId,
-        data = data
+        dest_addr_long=dest_addr_long,
+        dest_addr=dest_addr,
+        src_endpoint=src_endpoint,
+        dest_endpoint=dest_endpoint,
+        cluster=cluster,
+        profile=profile,
+        data=data
     )
 
 # Create ZigBee library API object, which spawns a new thread

@@ -30,12 +30,17 @@ BROADCAST_SHORT = '\xff\xfe'
 switchLongAddr = ''
 switchShortAddr = ''
 
+def prettyMac(macString):
+    return ':'.join('%02x' % ord(b) for b in macString)
+
 def receiveMessage(data):
     # pp = pprint.PrettyPrinter(indent=4)
     # pp.pprint(data)
+    # print prettyMac(data['source_addr_long'])
 
     global switchLongAddr; switchLongAddr = data['source_addr_long']
     global switchShortAddr; switchShortAddr = data['source_addr']
+    
     profileId = data['profile']
     clusterId = data['cluster']
 

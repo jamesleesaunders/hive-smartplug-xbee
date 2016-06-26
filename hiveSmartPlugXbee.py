@@ -5,7 +5,7 @@
 # Author:      James Saunders [james@saunders-family.net]
 # Copyright:   Copyright (C) 2016 James Saunders
 # License:     MIT
-# Version:     1.0.3"
+# Version:     1.0.4"
 
 from xbee import ZigBee
 from struct import unpack
@@ -36,7 +36,6 @@ def prettyMac(macString):
 def receiveMessage(data):
     # pp = pprint.PrettyPrinter(indent=4)
     # pp.pprint(data)
-    # print prettyMac(data['source_addr_long'])
 
     global switchLongAddr; switchLongAddr = data['source_addr_long']
     global switchShortAddr; switchShortAddr = data['source_addr']
@@ -65,6 +64,7 @@ def receiveMessage(data):
         elif (clusterId == '\x802'):
             # Route Record Response
             print "Broadcasting Route Record Response"
+            print "\tPlug MAC Address:", prettyMac(data['source_addr_long'])
 
         elif (clusterId == '\x00\x06'):
             # Match Descriptor Request.

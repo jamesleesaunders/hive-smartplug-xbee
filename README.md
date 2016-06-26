@@ -4,3 +4,6 @@ Simple Python scripts demonstrating that it is possible to communicate and contr
 
 * hiveSmartPlugXbee.py - On/Off, Version, Usage Stats, Reange Test.
 * simpleExample.pl - Simple On/Off example.
+
+More information:
+[Smart of the Home Blog] (http://www.smartofthehome.com/tag/hive/)

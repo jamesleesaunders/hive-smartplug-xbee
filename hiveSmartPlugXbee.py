@@ -168,7 +168,7 @@ def receiveMessage(data):
             if (clusterCmd == '\xfb'):
                 print "Mystery Cluster Command"
                 # '\t\x00\xfb\x1f#\xe9\xa2\x01\x10\x10\x1c\x02\xe2\xff\x01\x00'
-                # Needs more investigation as to what these values are
+                # Needs more investigation as to what these values are?
                 values = dict(zip(
                     ('clusterCmd', 'mysteryVal'),
                     unpack('< 2x s H 11x', data['rf_data'])

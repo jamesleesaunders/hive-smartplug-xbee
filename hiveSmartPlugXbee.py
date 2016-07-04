@@ -50,7 +50,7 @@ def receiveMessage(data):
             # Device Announce Message.
             # Due to timing problems with the switch itself, we don't
             # respond to this message, we save the response for later after the
-            # Match Descriptor request comes in.  You'll see it down below.
+            # Match Descriptor request comes in. You'll see it down below.
             print "Device Announce Message"
 
         elif (clusterId == '\x80\x05'):

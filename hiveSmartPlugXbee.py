@@ -15,8 +15,8 @@ import sys
 import pprint
 
 # Serial Configuration
-XBEE_PORT = '/dev/tty.usbserial-A1014P7W' # MacBook Serial Port
-# XBEE_PORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
+# XBEE_PORT = '/dev/tty.usbserial-A1014P7W' # MacBook Serial Port
+XBEE_PORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
 XBEE_BAUD = 9600
 serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD)
 
@@ -25,7 +25,7 @@ ZDP_PROFILE_ID = '\x00\x00' # Zigbee Device Profile
 ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
 
 # ZigBee Addressing
-BROADCAST = '\x00\x00\x00\x00\x00\x00\xff\xff'
+BROADCAST_LONG = '\x00\x00\x00\x00\x00\x00\xff\xff'
 BROADCAST_SHORT = '\xff\xfe'
 switchLongAddr = ''
 switchShortAddr = ''
@@ -200,7 +200,7 @@ zb = ZigBee(serialPort, callback = receiveMessage)
 
 # Send out initial broadcast to provoke a response (so we can then ascertain the switch address)
 data = '\x12' + '\x01'
-sendMessage(BROADCAST, BROADCAST_SHORT, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
+sendMessage(BROADCAST_LONG, BROADCAST_SHORT, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
 
 print "Select Command:"
 print "\t0 Switch Off"
@@ -283,7 +283,7 @@ while True:
         elif (str1[0] == '8'):
             # Broadcast
             data = '\x12' + '\x01'
-            sendMessage(BROADCAST, BROADCAST_SHORT, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
+            sendMessage(BROADCAST_LONG, BROADCAST_SHORT, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
 
         else:
             # Unrecognised Option

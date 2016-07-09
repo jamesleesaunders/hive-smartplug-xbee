@@ -5,7 +5,7 @@
 # Author:      James Saunders [james@saunders-family.net]
 # Copyright:   Copyright (C) 2016 James Saunders
 # License:     MIT
-# Version:     1.0.4"
+# Version:     1.0.5"
 
 from xbee import XBee, ZigBee
 import serial
@@ -14,8 +14,8 @@ import sys
 import pprint
 
 # Serial Configuration
-XBEE_PORT = '/dev/tty.usbserial-A1014P7W' # MacBook Serial Port
-# XBEE_PORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
+# XBEE_PORT = '/dev/tty.usbserial-A1014P7W' # MacBook Serial Port
+XBEE_PORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
 XBEE_BAUD = 9600
 serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD)
 
@@ -24,8 +24,8 @@ ZDP_PROFILE_ID = '\x00\x00' # ZigBee Device Profile
 ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
 
 # ZigBee Addressing
-broadcastLongAddr = '\x00\x00\x00\x00\x00\x00\xff\xff'
-broadcastShortAddr = '\xff\xfe'
+BROADCAST_LONG = '\x00\x00\x00\x00\x00\x00\xff\xff'
+BROADCAST_SHORT = '\xff\xfe'
 switchLongAddr = ''
 switchShortAddr = ''
 
@@ -96,7 +96,7 @@ while True:
             # Send out initial broadcast to provoke a response,
             # So we can then ascertain the switch address
             data = '\x12' + '\x01'
-            sendMessage(broadcastLongAddr, broadcastShortAddr, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
+            sendMessage(BROADCAST_LONG, BROADCAST_SHORT, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
 
     except KeyboardInterrupt:
         print "Keyboard Interrupt"

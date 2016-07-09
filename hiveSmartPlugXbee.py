@@ -5,7 +5,7 @@
 # Author:      James Saunders [james@saunders-family.net]
 # Copyright:   Copyright (C) 2016 James Saunders
 # License:     MIT
-# Version:     1.0.4"
+# Version:     1.0.5"
 
 from xbee import ZigBee
 from struct import unpack

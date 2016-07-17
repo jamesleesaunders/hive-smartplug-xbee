@@ -5,7 +5,7 @@
 # Author:      James Saunders [james@saunders-family.net]
 # Copyright:   Copyright (C) 2016 James Saunders
 # License:     MIT
-# Version:     1.0.5"
+# Version:     1.0.6"
 
 from xbee import ZigBee
 from struct import unpack
@@ -37,152 +37,154 @@ def receiveMessage(data):
     # pp = pprint.PrettyPrinter(indent=4)
     # pp.pprint(data)
 
-    global switchLongAddr; switchLongAddr = data['source_addr_long']
-    global switchShortAddr; switchShortAddr = data['source_addr']
+    if (data['id'] == 'rx_explicit'):
+
+        global switchLongAddr; switchLongAddr = data['source_addr_long']
+        global switchShortAddr; switchShortAddr = data['source_addr']
     
-    profileId = data['profile']
-    clusterId = data['cluster']
+        profileId = data['profile']
+        clusterId = data['cluster']
 
-    if (profileId == ZDP_PROFILE_ID):
-        # Zigbee Device Profile ID
+        if (profileId == ZDP_PROFILE_ID):
+            # Zigbee Device Profile ID
 
-        if (clusterId == '\x13'):
-            # Device Announce Message.
-            # Due to timing problems with the switch itself, we don't
-            # respond to this message, we save the response for later after the
-            # Match Descriptor request comes in. You'll see it down below.
-            print "Device Announce Message"
+            if (clusterId == '\x13'):
+                # Device Announce Message.
+                # Due to timing problems with the switch itself, we don't
+                # respond to this message, we save the response for later after the
+                # Match Descriptor request comes in. You'll see it down below.
+                print "Device Announce Message"
 
-        elif (clusterId == '\x80\x05'):
-            # Active Endpoint Response.
-            # This message tells you what the device can do, but it isn't
-            # constructed correctly to match what the switch can do according
-            # to the spec. This is another message that gets it's response
-            # after I receive the Match Descriptor below.
-            print "Active Endpoint Response"
+            elif (clusterId == '\x80\x05'):
+                # Active Endpoint Response.
+                # This message tells you what the device can do, but it isn't
+                # constructed correctly to match what the switch can do according
+                # to the spec. This is another message that gets it's response
+                # after I receive the Match Descriptor below.
+                print "Active Endpoint Response"
 
-        elif (clusterId == '\x802'):
-            # Route Record Response
-            print "Broadcasting Route Record Response"
-            print "\tPlug MAC Address:", prettyMac(data['source_addr_long'])
+            elif (clusterId == '\x802'):
+                # Route Record Response
+                print "Broadcasting Route Record Response"
+                print "\tPlug MAC Address:", prettyMac(data['source_addr_long'])
 
-        elif (clusterId == '\x00\x06'):
-            # Match Descriptor Request.
-            # This is the point where we finally respond to the switch.
-            # Several messages are sent to cause the switch to join with
-            # the controller at a network level and to cause it to regard
-            # this controller as valid.
+            elif (clusterId == '\x00\x06'):
+                # Match Descriptor Request.
+                # This is the point where we finally respond to the switch.
+                # Several messages are sent to cause the switch to join with
+                # the controller at a network level and to cause it to regard
+                # this controller as valid.
 
-            # First the Active Endpoint Request
-            data = '\x00\x00'
-            sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x00\x05', ZDP_PROFILE_ID, data)
-            print "Sent Active Endpoint Request"
+                # First the Active Endpoint Request
+                data = '\x00\x00'
+                sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x00\x05', ZDP_PROFILE_ID, data)
+                print "Sent Active Endpoint Request"
 
-            # Now the Match Descriptor Response
-            data = '\x00\x00\x00\x00\x01\x02'
-            sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x80\x06', ZDP_PROFILE_ID, data)
-            print "Sent Match Descriptor"
+                # Now the Match Descriptor Response
+                data = '\x00\x00\x00\x00\x01\x02'
+                sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x80\x06', ZDP_PROFILE_ID, data)
+                print "Sent Match Descriptor"
 
-        elif (clusterId == '\x00\x06'):
-            # Now there are two messages directed at the hardware
-            # code (rather than the network code).
-            data = '\x11\x01\xfc'
-            sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf6', ALERTME_PROFILE_ID, data)
+            elif (clusterId == '\x00\x06'):
+                # Now there are two messages directed at the hardware
+                # code (rather than the network code).
+                data = '\x11\x01\xfc'
+                sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf6', ALERTME_PROFILE_ID, data)
 
-            # The switch has to receive both of these to stay joined.
-            data = '\x19\x01\xfa\x00\x01'
-            sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf0', ALERTME_PROFILE_ID, data)
-            print "Sent Hardware Join Messages"
-
-        else:
-            print "Minor Error: Unrecognised Cluster ID"
-
-    elif (profileId == ALERTME_PROFILE_ID):
-        # AlertMe Profile ID
-
-        clusterCmd = data['rf_data'][2]
-        if (clusterId == '\x00\xef'):
-            if (clusterCmd == '\x81'):
-                print "Current Power"
-                # '\tj\x81\x00\x00'
-                values = dict(zip(
-                    ('clusterCmd', 'Power'),
-                    unpack('< 2x s H', data['rf_data'])
-                ))
-                print "\tInstantaneous Power:", values['Power']
-
-            elif (clusterCmd == '\x82'):
-                print "Usage Stats"
-                # '\t\x00\x82Z\xbb\x04\x00\xdf\x86\x04\x00\x00'
-                values = dict(zip(
-                    ('clusterCmd', 'Usage', 'UpTime'),
-                    unpack('< 2x s I I 1x', data['rf_data'])
-                ))
-                print "\tUsage (watt-seconds):", values['Usage']
-                print "\tUsage (watt-hours):", values['Usage'] * 0.000277778
-                print "\tUp Time (seconds):", values['UpTime']
+                # The switch has to receive both of these to stay joined.
+                data = '\x19\x01\xfa\x00\x01'
+                sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf0', ALERTME_PROFILE_ID, data)
+                print "Sent Hardware Join Messages"
 
             else:
-                print "Minor Error: Unrecognised Cluster Command"
+                print "Minor Error: Unrecognised Cluster ID"
 
-        elif (clusterId == '\x00\xf6'):
-            if (clusterCmd == '\xfd'):
-                print "Range Test"
-                # '\t+\xfd\xc5w'
-                values = dict(zip(
-                    ('clusterCmd', 'RSSI'),
-                    unpack('< 2x s B 1x', data['rf_data'])
-                ))
-                print "\tRSSI Value:", values['RSSI']
+        elif (profileId == ALERTME_PROFILE_ID):
+            # AlertMe Profile ID
 
-            elif (clusterCmd == '\xfe'):
-                print "Version Information"
-                # '\tq\xfeMN\xf8\xb9\xbb\x03\x00o\r\x009\x10\x07\x00\x00)\x00\x01\x0bAlertMe.com\tSmartPlug\n2013-09-26'
-                values = dict(zip(
-                    ('clusterCmd', 'Version', 'Manu'),
-                    unpack('< 2x s H 17x 32s', data['rf_data'])
-                ))
-                print "\tVersion:", values['Version']
-                print "\tManufacturer:", values['Manu'].split()[0]
-                print "\tModel:", values['Manu'].split()[1]
-                print "\tDate:", values['Manu'].split()[2]
+            clusterCmd = data['rf_data'][2]
+            if (clusterId == '\x00\xef'):
+                if (clusterCmd == '\x81'):
+                    print "Current Power"
+                    # '\tj\x81\x00\x00'
+                    values = dict(zip(
+                        ('clusterCmd', 'Power'),
+                        unpack('< 2x s H', data['rf_data'])
+                    ))
+                    print "\tInstantaneous Power:", values['Power']
 
-            else:
-                print "Minor Error: Unrecognised Cluster Command"
+                elif (clusterCmd == '\x82'):
+                    print "Usage Stats"
+                    # '\t\x00\x82Z\xbb\x04\x00\xdf\x86\x04\x00\x00'
+                    values = dict(zip(
+                        ('clusterCmd', 'Usage', 'UpTime'),
+                        unpack('< 2x s I I 1x', data['rf_data'])
+                    ))
+                    print "\tUsage (watt-seconds):", values['Usage']
+                    print "\tUsage (watt-hours):", values['Usage'] * 0.000277778
+                    print "\tUp Time (seconds):", values['UpTime']
 
-        elif (clusterId == '\x00\xee'):
-            print "Switch Status"
-            if (clusterCmd == '\x80'):
-                # '\th\x80\x07\x01'
-                # '\th\x80\x06\x00'
-                if (ord(data['rf_data'][3]) & 0x01):
-                    state = "ON"
                 else:
-                    state = "OFF"
-                print "\tSwitch is:", state
+                    print "Minor Error: Unrecognised Cluster Command"
+
+            elif (clusterId == '\x00\xf6'):
+                if (clusterCmd == '\xfd'):
+                    print "Range Test"
+                    # '\t+\xfd\xc5w'
+                    values = dict(zip(
+                        ('clusterCmd', 'RSSI'),
+                        unpack('< 2x s B 1x', data['rf_data'])
+                    ))
+                    print "\tRSSI Value:", values['RSSI']
+
+                elif (clusterCmd == '\xfe'):
+                    print "Version Information"
+                    # '\tq\xfeMN\xf8\xb9\xbb\x03\x00o\r\x009\x10\x07\x00\x00)\x00\x01\x0bAlertMe.com\tSmartPlug\n2013-09-26'
+                    values = dict(zip(
+                        ('clusterCmd', 'Version', 'Manu'),
+                        unpack('< 2x s H 17x 32s', data['rf_data'])
+                    ))
+                    print "\tVersion:", values['Version']
+                    print "\tManufacturer:", values['Manu'].split()[0]
+                    print "\tModel:", values['Manu'].split()[1]
+                    print "\tDate:", values['Manu'].split()[2]
+
+                else:
+                    print "Minor Error: Unrecognised Cluster Command"
+
+            elif (clusterId == '\x00\xee'):
+                print "Switch Status"
+                if (clusterCmd == '\x80'):
+                    # '\th\x80\x07\x01'
+                    # '\th\x80\x06\x00'
+                    if (ord(data['rf_data'][3]) & 0x01):
+                        state = "ON"
+                    else:
+                        state = "OFF"
+                    print "\tSwitch is:", state
+
+                else:
+                    print "Minor Error: Unrecognised Cluster Command"
+
+            elif (clusterId == '\x00\xf0'):
+                if (clusterCmd == '\xfb'):
+                    print "Mystery Cluster Command"
+                    # '\t\x00\xfb\x1f#\xe9\xa2\x01\x10\x10\x1c\x02\xe2\xff\x01\x00'
+                    # Needs more investigation as to what these values are?
+                    values = dict(zip(
+                        ('clusterCmd', 'mysteryVal'),
+                        unpack('< 2x s H 11x', data['rf_data'])
+                    ))
+                    print "\tUnknown Value:", values['mysteryVal']
+
+                else:
+                    print "Minor Error: Unrecognised Cluster Command"
 
             else:
-                print "Minor Error: Unrecognised Cluster Command"
-
-        elif (clusterId == '\x00\xf0'):
-            if (clusterCmd == '\xfb'):
-                print "Mystery Cluster Command"
-                # '\t\x00\xfb\x1f#\xe9\xa2\x01\x10\x10\x1c\x02\xe2\xff\x01\x00'
-                # Needs more investigation as to what these values are?
-                values = dict(zip(
-                    ('clusterCmd', 'mysteryVal'),
-                    unpack('< 2x s H 11x', data['rf_data'])
-                ))
-                print "\tUnknown Value:", values['mysteryVal']
-
-            else:
-                print "Minor Error: Unrecognised Cluster Command"
+                print "Minor Error: Unrecognised Cluster ID"
 
         else:
-            print "Minor Error: Unrecognised Cluster ID"
-
-    else:
-        print "Minor Error: Unrecognised Profile ID"
+            print "Minor Error: Unrecognised Profile ID"
 
 def sendMessage(destLongAddr, destShortAddr, srcEndpoint, destEndpoint, clusterId, profileId, data):
     zb.send('tx_explicit',
@@ -195,8 +197,12 @@ def sendMessage(destLongAddr, destShortAddr, srcEndpoint, destEndpoint, clusterI
         data = data
     )
 
+
+def xbeeError(error):
+    print "XBee Error:", error
+
 # Create ZigBee library API object, which spawns a new thread
-zb = ZigBee(serialPort, callback = receiveMessage)
+zb = ZigBee(serialPort, callback = receiveMessage, error_callback = xbeeError)
 
 # Send out initial broadcast to provoke a response (so we can then ascertain the switch address)
 data = '\x12' + '\x01'

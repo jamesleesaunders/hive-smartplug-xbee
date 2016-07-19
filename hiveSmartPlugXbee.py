@@ -5,7 +5,7 @@
 # Author:      James Saunders [james@saunders-family.net]
 # Copyright:   Copyright (C) 2016 James Saunders
 # License:     MIT
-# Version:     1.0.6"
+# Version:     1.0.7"
 
 from xbee import ZigBee
 from struct import unpack
@@ -27,8 +27,8 @@ ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
 # ZigBee Addressing
 BROADCAST_LONG = '\x00\x00\x00\x00\x00\x00\xff\xff'
 BROADCAST_SHORT = '\xff\xfe'
-switchLongAddr = ''
-switchShortAddr = ''
+switchLongAddr = ''  # Learnt later
+switchShortAddr = '' # Learnt later
 
 def prettyMac(macString):
     return ':'.join('%02x' % ord(b) for b in macString)
@@ -38,10 +38,10 @@ def receiveMessage(data):
     # pp.pprint(data)
 
     if (data['id'] == 'rx_explicit'):
+        # We are only interested in Zigbee Explicit command packets
+        # Ignore Route Record Indicator packets etc.
 
-        global switchLongAddr; switchLongAddr = data['source_addr_long']
-        global switchShortAddr; switchShortAddr = data['source_addr']
-    
+   
         profileId = data['profile']
         clusterId = data['cluster']
 
@@ -57,15 +57,20 @@ def receiveMessage(data):
 
             elif (clusterId == '\x80\x05'):
                 # Active Endpoint Response.
-                # This message tells you what the device can do, but it isn't
+                # This message tells us what the device can do, but it isn't
                 # constructed correctly to match what the switch can do according
                 # to the spec. This is another message that gets it's response
-                # after I receive the Match Descriptor below.
+                # after we receive the Match Descriptor below.
                 print "Active Endpoint Response"
 
             elif (clusterId == '\x802'):
-                # Route Record Response
-                print "Broadcasting Route Record Response"
+                # Route Record Broadcast Response.
+                
+                # This is where we 'learn; the switch Long and Short addresses
+                global switchLongAddr; switchLongAddr = data['source_addr_long']
+                global switchShortAddr; switchShortAddr = data['source_addr']
+ 
+                print "Route Record Broadcast Response"
                 print "\tPlug MAC Address:", prettyMac(data['source_addr_long'])
 
             elif (clusterId == '\x00\x06'):
@@ -75,12 +80,12 @@ def receiveMessage(data):
                 # the controller at a network level and to cause it to regard
                 # this controller as valid.
 
-                # First the Active Endpoint Request
+                # First send the Active Endpoint Request
                 data = '\x00\x00'
                 sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x00\x05', ZDP_PROFILE_ID, data)
                 print "Sent Active Endpoint Request"
 
-                # Now the Match Descriptor Response
+                # Now send the Match Descriptor Response
                 data = '\x00\x00\x00\x00\x01\x02'
                 sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x80\x06', ZDP_PROFILE_ID, data)
                 print "Sent Match Descriptor"

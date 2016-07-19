@@ -27,8 +27,9 @@ ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
 # ZigBee Addressing
 BROADCAST_LONG = '\x00\x00\x00\x00\x00\x00\xff\xff'
 BROADCAST_SHORT = '\xff\xfe'
-switchLongAddr = ''  # Learnt later
-switchShortAddr = '' # Learnt later
+# Switch addresses learnt following broadcast response
+switchLongAddr = ''
+switchShortAddr = ''
 
 def prettyMac(macString):
     return ':'.join('%02x' % ord(b) for b in macString)
@@ -38,10 +39,9 @@ def receiveMessage(data):
     # pp.pprint(data)
 
     if (data['id'] == 'rx_explicit'):
-        # We are only interested in Zigbee Explicit command packets
+        # We are only interested in Zigbee Explicit packets.
         # Ignore Route Record Indicator packets etc.
 
-   
         profileId = data['profile']
         clusterId = data['cluster']
 
@@ -66,7 +66,7 @@ def receiveMessage(data):
             elif (clusterId == '\x802'):
                 # Route Record Broadcast Response.
                 
-                # This is where we 'learn; the switch Long and Short addresses
+                # This is where we learn the switch Long and Short addresses
                 global switchLongAddr; switchLongAddr = data['source_addr_long']
                 global switchShortAddr; switchShortAddr = data['source_addr']
  

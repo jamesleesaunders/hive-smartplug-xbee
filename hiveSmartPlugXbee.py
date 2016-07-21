@@ -35,8 +35,8 @@ def prettyMac(macString):
     return ':'.join('%02x' % ord(b) for b in macString)
 
 def receiveMessage(data):
-    # pp = pprint.PrettyPrinter(indent=4)
-    # pp.pprint(data)
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(data)
 
     if (data['id'] == 'rx_explicit'):
         # We are only interested in Zigbee Explicit packets.
@@ -54,6 +54,12 @@ def receiveMessage(data):
                 # respond to this message, we save the response for later after the
                 # Match Descriptor request comes in. You'll see it down below.
                 print "Device Announce Message"
+
+            elif (clusterId == '\x80\x11'):
+                # Network (16-bit) Address Response??
+                # Only seen on the Hive ActivePlug?
+                # See: http://www.desert-home.com/2015/06/hacking-into-iris-door-sensor-part-4.html
+                print("Network (16-bit) Address Response")
 
             elif (clusterId == '\x80\x05'):
                 # Active Endpoint Response.
@@ -73,7 +79,7 @@ def receiveMessage(data):
                 print "Route Record Broadcast Response"
                 print "\tPlug MAC Address:", prettyMac(data['source_addr_long'])
 
-            elif (clusterId == '\x00\x06'):
+            elif (clusterId == '\x00\x06') or (clusterId == '\x80\x00'):
                 # Match Descriptor Request.
                 # This is the point where we finally respond to the switch.
                 # Several messages are sent to cause the switch to join with
@@ -90,13 +96,11 @@ def receiveMessage(data):
                 sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x80\x06', ZDP_PROFILE_ID, data)
                 print "Sent Match Descriptor"
 
-            elif (clusterId == '\x00\x06'):
-                # Now there are two messages directed at the hardware
-                # code (rather than the network code).
+                # Now there are two messages directed at the hardware code (rather than the network code).
+                # The switch has to receive both of these to stay joined.
                 data = '\x11\x01\xfc'
                 sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf6', ALERTME_PROFILE_ID, data)
 
-                # The switch has to receive both of these to stay joined.
                 data = '\x19\x01\xfa\x00\x01'
                 sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf0', ALERTME_PROFILE_ID, data)
                 print "Sent Hardware Join Messages"

@@ -55,9 +55,9 @@ def receiveMessage(data):
                 # Match Descriptor request comes in. You'll see it down below.
                 print "Device Announce Message"
 
-            elif (clusterId == '\x80\x11'):
-                # Network (16-bit) Address Response??
-                # Only seen on the Hive ActivePlug?
+            elif (clusterId == '\x80\x00'):
+                # Possibly Network (16-bit) Address Response.
+                # Not sure what this is? Only seen on the Hive ActivePlug?
                 # See: http://www.desert-home.com/2015/06/hacking-into-iris-door-sensor-part-4.html
                 print("Network (16-bit) Address Response")
 
@@ -79,7 +79,7 @@ def receiveMessage(data):
                 print "Route Record Broadcast Response"
                 print "\tPlug MAC Address:", prettyMac(data['source_addr_long'])
 
-            elif (clusterId == '\x00\x06') or (clusterId == '\x80\x00'):
+            elif (clusterId == '\x00\x06'):
                 # Match Descriptor Request.
                 # This is the point where we finally respond to the switch.
                 # Several messages are sent to cause the switch to join with

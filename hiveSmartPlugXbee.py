@@ -300,6 +300,11 @@ while True:
             data = '\x12' + '\x01'
             sendMessage(BROADCAST_LONG, BROADCAST_SHORT, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
 
+        elif (str1[0] == '9'):
+            # Network Address Request
+            data = '\x11\x00' + '\x00\x00' + '\x01'
+            sendMessage(switchShortAddr, switchShortAddr, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
+
         else:
             # Unrecognised Option
             print "Unknown Command"

@@ -20,6 +20,8 @@ XBEE_PORT = '/dev/ttyUSB0' # Rasberry Pi Serial Port
 XBEE_BAUD = 9600
 serialPort = serial.Serial(XBEE_PORT, XBEE_BAUD)
 
+# serialSettings = {'port': XBEE_PORT, 'parity': 'N', 'baudrate': 9600, 'bytesize': 8, 'xonxoff': False, 'rtscts': False, 'timeout': None, 'inter_byte_timeout': None, 'stopbits': 1, 'dsrdtr': False, 'write_timeout': None}
+
 # ZigBee Profile IDs
 ZDP_PROFILE_ID = '\x00\x00' # Zigbee Device Profile
 ALERTME_PROFILE_ID = '\xc2\x16' # AlertMe Private Profile
@@ -34,9 +36,9 @@ switchShortAddr = ''
 def prettyMac(macString):
     return ':'.join('%02x' % ord(b) for b in macString)
 
-def receiveMessage(message):
-    # pp = pprint.PrettyPrinter(indent=4)
-    # pp.pprint(message)
+def receiveMessage(data):
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(data)
 
     if (message['id'] == 'rx_explicit'):
         # We are only interested in Zigbee Explicit packets.
@@ -45,6 +47,10 @@ def receiveMessage(message):
         profileId = message['profile']
         clusterId = message['cluster']
 
+        # This is where we learn the switch Long and Short addresses
+        global switchLongAddr; switchLongAddr = data['source_addr_long']
+        global switchShortAddr; switchShortAddr = data['source_addr']
+ 
         if (profileId == ZDP_PROFILE_ID):
             # Zigbee Device Profile ID
 
@@ -54,6 +60,12 @@ def receiveMessage(message):
                 # respond to this message, we save the response for later after the
                 # Match Descriptor request comes in. You'll see it down below.
                 print "Device Announce Message"
+
+            elif (clusterId == '\x80\x00'):
+                # Possibly Network (16-bit) Address Response.
+                # Not sure what this is? Only seen on the Hive ActivePlug?
+                # See: http://www.desert-home.com/2015/06/hacking-into-iris-door-sensor-part-4.html
+                print("Network (16-bit) Address Response")
 
             elif (clusterId == '\x80\x05'):
                 # Active Endpoint Response.
@@ -67,8 +79,8 @@ def receiveMessage(message):
                 # Route Record Broadcast Response.
                 
                 # This is where we learn the switch Long and Short addresses
-                global switchLongAddr; switchLongAddr = message['source_addr_long']
-                global switchShortAddr; switchShortAddr = message['source_addr']
+                # global switchLongAddr; switchLongAddr = data['source_addr_long']
+                # global switchShortAddr; switchShortAddr = data['source_addr']
  
                 print "Route Record Broadcast Response"
                 print "\tPlug MAC Address:", prettyMac(message['source_addr_long'])
@@ -90,13 +102,11 @@ def receiveMessage(message):
                 sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x80\x06', ZDP_PROFILE_ID, data)
                 print "Sent Match Descriptor"
 
-            elif (clusterId == '\x00\x06'):
-                # Now there are two messages directed at the hardware
-                # code (rather than the network code).
+                # Now there are two messages directed at the hardware code (rather than the network code).
+                # The switch has to receive both of these to stay joined.
                 data = '\x11\x01\xfc'
                 sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf6', ALERTME_PROFILE_ID, data)
 
-                # The switch has to receive both of these to stay joined.
                 data = '\x19\x01\xfa\x00\x01'
                 sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x02', '\x00\xf0', ALERTME_PROFILE_ID, data)
                 print "Sent Hardware Join Messages"
@@ -144,15 +154,20 @@ def receiveMessage(message):
 
                 elif (clusterCmd == '\xfe'):
                     print "Version Information"
-                    # '\tq\xfeMN\xf8\xb9\xbb\x03\x00o\r\x009\x10\x07\x00\x00)\x00\x01\x0bAlertMe.com\tSmartPlug\n2013-09-26'
+                    # '\tq\xfeMN\xf8\xb9\xbb\x03\x00o\r\x009\x10\x07\x00\x00)\x00\x01\x0bAlertMe.com\tSmartPlug\n2013-09-26'   32
+                    # '\tp\xfe+\xe8\xc0ax\x00\x00o\r\x009\x10\x01\x00\x01#\x00\x01\x0bAlertMe.com\rButton Device\n2010-11-15'  36
+                    # '\tp\xfe\xb6\xb7x\x1dx\x00\x00o\r\x009\x10\x06\x00\x00#\x00\x02\x0bAlertMe.com\nPIR Device\n2010-11-24'  33
                     values = dict(zip(
                         ('clusterCmd', 'Version', 'Manu'),
                         unpack('< 2x s H 17x 32s', message['rf_data'])
                     ))
+                    values['Manu'] = values['Manu'].replace('\t', '\n')
+                    values['Manu'] = values['Manu'].replace('\r', '\n')
+                    
                     print "\tVersion:", values['Version']
-                    print "\tManufacturer:", values['Manu'].split()[0]
-                    print "\tModel:", values['Manu'].split()[1]
-                    print "\tDate:", values['Manu'].split()[2]
+                    print "\tManufacturer:", values['Manu'].split('\n')[0]
+                    print "\tModel:", values['Manu'].split('\n')[1]
+                    print "\tDate:", values['Manu'].split('\n')[2]
 
                 else:
                     print "Minor Error: Unrecognised Cluster Command"
@@ -207,7 +222,7 @@ def xbeeError(error):
     print "XBee Error:", error
 
 # Create ZigBee library API object, which spawns a new thread
-zb = ZigBee(serialPort, callback = receiveMessage, error_callback = xbeeError)
+zb = ZigBee(ser = serialPort, callback = receiveMessage, error_callback = xbeeError)
 
 # Send out initial broadcast to provoke a response (so we can then ascertain the switch address)
 data = '\x12' + '\x01'
@@ -296,6 +311,15 @@ while True:
             data = '\x12' + '\x01'
             sendMessage(BROADCAST_LONG, BROADCAST_SHORT, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
 
+        elif (str1[0] == '9'):
+            # Network Address Request
+            data = '\x11\x00' + '\x00\x00' + '\x01'
+            sendMessage(switchShortAddr, switchShortAddr, '\x00', '\x00', '\x00\x32', ZDP_PROFILE_ID, data)
+
+        elif (str1[0] == 'x'):
+            # Close Serial Port Test
+            zb.serial.close()
+
         else:
             # Unrecognised Option
             print "Unknown Command"
@@ -319,4 +343,3 @@ while True:
 print "Closing Serial Port"
 zb.halt()
 serialPort.close()
-

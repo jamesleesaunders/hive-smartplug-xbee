@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-# Filename:    hiveSmartPlugXbee.pl
+# Filename:    hive-smartplug-xbee.pl
 # Description: Communicate with a Hive SmartPlug via a XBee
 # Author:      James Saunders [james@saunders-family.net]
 # Copyright:   Copyright (C) 2016 James Saunders

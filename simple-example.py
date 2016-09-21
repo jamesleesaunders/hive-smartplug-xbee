@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-# Filename:    simpleExample.pl
+# Filename:    simple-example.pl
 # Description: Switch a Hive SmartPlug On/Off using a XBee
 # Author:      James Saunders [james@saunders-family.net]
 # Copyright:   Copyright (C) 2016 James Saunders

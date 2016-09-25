@@ -34,16 +34,16 @@ switchShortAddr = ''
 def prettyMac(macString):
     return ':'.join('%02x' % ord(b) for b in macString)
 
-def receiveMessage(data):
+def receiveMessage(message):
     # pp = pprint.PrettyPrinter(indent=4)
-    # pp.pprint(data)
+    # pp.pprint(message)
 
-    if (data['id'] == 'rx_explicit'):
+    if (message['id'] == 'rx_explicit'):
         # We are only interested in Zigbee Explicit packets.
         # Ignore Route Record Indicator packets etc.
 
-        profileId = data['profile']
-        clusterId = data['cluster']
+        profileId = message['profile']
+        clusterId = message['cluster']
 
         if (profileId == ZDP_PROFILE_ID):
             # Zigbee Device Profile ID
@@ -67,11 +67,11 @@ def receiveMessage(data):
                 # Route Record Broadcast Response.
                 
                 # This is where we learn the switch Long and Short addresses
-                global switchLongAddr; switchLongAddr = data['source_addr_long']
-                global switchShortAddr; switchShortAddr = data['source_addr']
+                global switchLongAddr; switchLongAddr = message['source_addr_long']
+                global switchShortAddr; switchShortAddr = message['source_addr']
  
                 print "Route Record Broadcast Response"
-                print "\tPlug MAC Address:", prettyMac(data['source_addr_long'])
+                print "\tPlug MAC Address:", prettyMac(message['source_addr_long'])
 
             elif (clusterId == '\x00\x06'):
                 # Match Descriptor Request.
@@ -107,14 +107,14 @@ def receiveMessage(data):
         elif (profileId == ALERTME_PROFILE_ID):
             # AlertMe Profile ID
 
-            clusterCmd = data['rf_data'][2]
+            clusterCmd = message['rf_data'][2]
             if (clusterId == '\x00\xef'):
                 if (clusterCmd == '\x81'):
                     print "Current Power"
                     # '\tj\x81\x00\x00'
                     values = dict(zip(
                         ('clusterCmd', 'Power'),
-                        unpack('< 2x s H', data['rf_data'])
+                        unpack('< 2x s H', message['rf_data'])
                     ))
                     print "\tInstantaneous Power:", values['Power']
 
@@ -123,7 +123,7 @@ def receiveMessage(data):
                     # '\t\x00\x82Z\xbb\x04\x00\xdf\x86\x04\x00\x00'
                     values = dict(zip(
                         ('clusterCmd', 'Usage', 'UpTime'),
-                        unpack('< 2x s I I 1x', data['rf_data'])
+                        unpack('< 2x s I I 1x', message['rf_data'])
                     ))
                     print "\tUsage (watt-seconds):", values['Usage']
                     print "\tUsage (watt-hours):", values['Usage'] * 0.000277778
@@ -138,7 +138,7 @@ def receiveMessage(data):
                     # '\t+\xfd\xc5w'
                     values = dict(zip(
                         ('clusterCmd', 'RSSI'),
-                        unpack('< 2x s B 1x', data['rf_data'])
+                        unpack('< 2x s B 1x', message['rf_data'])
                     ))
                     print "\tRSSI Value:", values['RSSI']
 
@@ -147,7 +147,7 @@ def receiveMessage(data):
                     # '\tq\xfeMN\xf8\xb9\xbb\x03\x00o\r\x009\x10\x07\x00\x00)\x00\x01\x0bAlertMe.com\tSmartPlug\n2013-09-26'
                     values = dict(zip(
                         ('clusterCmd', 'Version', 'Manu'),
-                        unpack('< 2x s H 17x 32s', data['rf_data'])
+                        unpack('< 2x s H 17x 32s', message['rf_data'])
                     ))
                     print "\tVersion:", values['Version']
                     print "\tManufacturer:", values['Manu'].split()[0]
@@ -162,7 +162,7 @@ def receiveMessage(data):
                 if (clusterCmd == '\x80'):
                     # '\th\x80\x07\x01'
                     # '\th\x80\x06\x00'
-                    if (ord(data['rf_data'][3]) & 0x01):
+                    if (ord(message['rf_data'][3]) & 0x01):
                         state = "ON"
                     else:
                         state = "OFF"
@@ -178,7 +178,7 @@ def receiveMessage(data):
                     # Needs more investigation as to what these values are?
                     values = dict(zip(
                         ('clusterCmd', 'mysteryVal'),
-                        unpack('< 2x s H 11x', data['rf_data'])
+                        unpack('< 2x s H 11x', message['rf_data'])
                     ))
                     print "\tUnknown Value:", values['mysteryVal']
 

@@ -29,14 +29,14 @@ BROADCAST_SHORT = '\xff\xfe'
 switchLongAddr = ''
 switchShortAddr = ''
 
-def receiveMessage(data):
+def receiveMessage(message):
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(data)
+    pp.pprint(message)
     
-    global switchLongAddr; switchLongAddr = data['source_addr_long']
-    global switchShortAddr; switchShortAddr = data['source_addr']
-    profileId = data['profile']
-    clusterId = data['cluster']
+    global switchLongAddr; switchLongAddr = message['source_addr_long']
+    global switchShortAddr; switchShortAddr = message['source_addr']
+    profileId = message['profile']
+    clusterId = message['cluster']
 
     if (profileId == ZDP_PROFILE_ID):
         if (clusterId == '\x00\x06'):
@@ -59,9 +59,9 @@ def receiveMessage(data):
 
     elif (profileId == ALERTME_PROFILE_ID):
         if (clusterId == '\x00\xee'):
-            clusterCmd = data['rf_data'][2]
+            clusterCmd = message['rf_data'][2]
             if (clusterCmd == '\x80'):
-                if (ord(data['rf_data'][3]) & 0x01):
+                if (ord(message['rf_data'][3]) & 0x01):
                     state = "ON"
                 else:
                     state = "OFF"

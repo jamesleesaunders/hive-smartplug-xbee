@@ -90,7 +90,6 @@ def receiveMessage(message):
                 sendMessage(switchLongAddr, switchShortAddr, '\x00', '\x00', '\x80\x06', ZDP_PROFILE_ID, data)
                 print "Sent Match Descriptor"
 
-            elif (clusterId == '\x00\x06'):
                 # Now there are two messages directed at the hardware
                 # code (rather than the network code).
                 data = '\x11\x01\xfc'
